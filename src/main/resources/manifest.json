@@ -1,0 +1,23 @@
+{
+    "Group": "net",
+    "Name": "camera-sequence-assets",
+    "Version": "1.0.0",
+    "Description": "Adds a CameraSequenceAsset which can be used to define keyframe lists which can be played back to a players camera using commands or a trigger volume. Designed with extensibility in mind.",
+    "Authors": [
+        {
+            "Name": "Lordimass|lordimass@lordimass.net|https://lordimass.net"
+        }
+    ],
+    "Website": "",
+    "ServerVersion": ">=0.6.0-pre.11 <0.7.0",
+    "Dependencies": {
+        "Hytale:AssetModule": "*"
+    },
+    "OptionalDependencies": {},
+    "DisabledByDefault": false,
+    "Main": "net.lordimass.Main",
+    "IncludesAssetPack": true,
+    "UpdateChecker": {
+        "CurseForge": ""
+    }
+}
