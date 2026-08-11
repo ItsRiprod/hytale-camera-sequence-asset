@@ -1,0 +1,90 @@
+{
+  "Keyframes": [
+    {
+      "Id": "Keyframe",
+      "RelativeToPlayer": true,
+      "Position": {
+        "X": 4,
+        "Y": 2.3
+      },
+      "Easing": "QuadIn",
+      "Look": {
+        "Pitch": -15,
+        "Yaw": 180
+      },
+      "Duration": 1
+    },
+    {
+      "Id": "Keyframe",
+      "RelativeToPlayer": true,
+      "Position": {
+        "X": 0,
+        "Z": 4,
+        "Y": 2.3
+      },
+      "Easing": "BackIn",
+      "Look": {
+        "Pitch": -15,
+        "Yaw": 90
+      },
+      "Duration": 2
+    },
+    {
+      "Id": "Keyframe",
+      "RelativeToPlayer": true,
+      "Position": {
+        "X": -4,
+        "Z": 0,
+        "Y": 2.3
+      },
+      "Look": {
+        "Pitch": -15,
+        "Yaw": 0
+      },
+      "Easing": "BackIn",
+      "Duration": 2
+    },
+    {
+      "Id": "Keyframe",
+      "RelativeToPlayer": true,
+      "Easing": "BackIn",
+      "Look": {
+        "Pitch": -15,
+        "Yaw": -90
+      },
+      "Position": {
+        "X": 0,
+        "Z": -4,
+        "Y": 2.3
+      },
+      "Duration": 2
+    },
+    {
+      "Id": "Keyframe",
+      "RelativeToPlayer": true,
+      "Position": {
+        "X": 4,
+        "Y": 2.3
+      },
+      "Easing": "BackIn",
+      "Look": {
+        "Pitch": -15,
+        "Yaw": 180
+      },
+      "Duration": 2
+    },
+    {
+      "Id": "Keyframe",
+      "Look": {
+        "Yaw": 180
+      },
+      "RelativeToPlayer": true,
+      "Position": {
+        "Y": 1.7
+      },
+      "Easing": "QuadIn",
+      "Duration": 1
+    }
+  ],
+  "BaseFov": 60
+}

@@ -2,6 +2,7 @@ plugins {
     id 'idea'
     id 'java'
     id 'com.azuredoom.hytale-tools' version '1.+'
+    id 'com.gradleup.shadow' version "9.4.2"
 }
 
 javadoc {
@@ -16,6 +17,19 @@ base {
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(java_version)
+}
+
+def lombokVersion = "1.18.40"
+dependencies {
+    compileOnly("org.jetbrains:annotations:26.1.0")
+    compileOnly("org.jspecify:jspecify:1.0.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    implementation("curse.maven:creditor-1560961:8334074")
+
+    compileOnly("org.projectlombok:lombok:$lombokVersion")
+    annotationProcessor("org.projectlombok:lombok:$lombokVersion")
 }
 
 hytaleTools {
@@ -40,6 +54,7 @@ hytaleTools {
 
 repositories {
     mavenCentral()
+    maven { url "https://www.cursemaven.com" }
 }
 
 idea {
@@ -47,4 +62,20 @@ idea {
         downloadSources = true
         downloadJavadoc = true
     }
+}
+
+tasks.named('jar') {
+    archiveBaseName.set(project.mod_name)
+    archiveVersion.set(project.version)
+    archiveClassifier.set('plain')
+}
+
+tasks.named('shadowJar') {
+    archiveClassifier.set('')
+    mergeServiceFiles()
+}
+
+// Ensure the shaded jar is produced during a normal build.
+tasks.named('build') {
+    dependsOn 'shadowJar'
 }
