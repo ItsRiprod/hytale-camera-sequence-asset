@@ -1,22 +1,24 @@
 package net.lordimass.command;
 
 import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.command.system.AbstractCommand;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
 import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
-import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
+import com.hypixel.hytale.server.core.command.system.exceptions.SenderTypeException;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import net.lordimass.assets.CameraSequenceAsset;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.awt.*;
+import java.util.concurrent.CompletableFuture;
 
-public class CameraSequenceCommand extends AbstractPlayerCommand {
+public class CameraSequenceCommand extends AbstractCommand {
     final RequiredArg<String> sequenceArg;
     final OptionalArg<PlayerRef> playerRefOptionalArg;
 
@@ -29,26 +31,38 @@ public class CameraSequenceCommand extends AbstractPlayerCommand {
     }
 
     @Override
-    protected void execute(
-        @NonNull CommandContext commandContext,
-        @NonNull Store<EntityStore> store,
-        @NonNull Ref<EntityStore> ref,
-        @NonNull PlayerRef playerRef,
-        @NonNull World world
-    ) {
-        PlayerRef targetPlayer = playerRefOptionalArg.get(commandContext);
-        targetPlayer = targetPlayer == null ? playerRef : targetPlayer;
+    protected @Nullable CompletableFuture<Void> execute(@NonNull CommandContext commandContext) {
+        boolean fromConsole;
+        var targetPlayer = new Object() {
+            PlayerRef val = playerRefOptionalArg.get(commandContext);
+        };
+        if (targetPlayer.val == null) {
+            try {
+                targetPlayer.val = commandContext.senderAs(PlayerRef.class);
+            } catch (SenderTypeException _) {}
+            fromConsole = false;
+        } else {
+            fromConsole = true;
+        }
+        if (targetPlayer.val == null) {
+            commandContext.sendMessage(Message.raw("Sender must be a player or provide the --player option!"));
+            return null;
+        }
+
         CameraSequenceAsset seq = CameraSequenceAsset.getAssetMap().getAsset(sequenceArg.get(commandContext));
         if (seq == null) {
-            playerRef.sendMessage(
+            if (!fromConsole) targetPlayer.val.sendMessage(
                 Message.raw("Couldn't find camera sequence '"+sequenceArg.get(commandContext)+"'")
                     .color(Color.RED)
             );
-            return;
+            return null;
         }
-        playerRef.sendMessage(Message.raw("Playing sequence '"+sequenceArg.get(commandContext)+"' to player."));
-        seq.play(targetPlayer, _ -> {
-            playerRef.sendMessage(Message.raw("Camera sequence completed").color(Color.GREEN));
+        if (!fromConsole) targetPlayer.val.sendMessage(
+            Message.raw("Playing sequence '"+sequenceArg.get(commandContext)+"' to player.")
+        );
+        seq.play(targetPlayer.val, _ -> {
+            if (!fromConsole) targetPlayer.val.sendMessage(Message.raw("Camera sequence completed").color(Color.GREEN));
         });
+        return null;
     }
 }

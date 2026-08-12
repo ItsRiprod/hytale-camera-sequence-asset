@@ -86,5 +86,6 @@
       "Duration": 1
     }
   ],
-  "BaseFov": 60
+  "BaseFov": 60,
+  "HideUi": true
 }

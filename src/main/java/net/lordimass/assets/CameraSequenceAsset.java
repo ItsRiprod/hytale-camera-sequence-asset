@@ -10,16 +10,22 @@ import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.codecs.array.ArrayCodec;
 import com.hypixel.hytale.codec.validation.Validators;
+import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.asset.HytaleAssetStore;
+import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.camera.CameraSequenceBuilder;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import lombok.Getter;
 import org.joml.Vector3d;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class CameraSequenceAsset implements JsonAssetWithMap<String, DefaultAssetMap<String, CameraSequenceAsset>> {
@@ -49,12 +55,19 @@ public class CameraSequenceAsset implements JsonAssetWithMap<String, DefaultAsse
                 CameraSequenceAsset::getBaseFov
             )
             .add()
+            .append(new KeyedCodec<>("HideUi", Codec.BOOLEAN),
+                (asset, hideUI) -> asset.hideUI = hideUI,
+                CameraSequenceAsset::isHideUI
+            )
+            .documentation("Whether the rest of the UI should be hidden while the effect is playing.")
+            .add()
             .build();
 
     private AssetExtraInfo.Data data;
     @Getter private String id;
     @Getter private CameraKeyframe[] cameraKeyframes = new CameraKeyframe[0];
     @Getter private Float baseFov;
+    @Getter private boolean hideUI;
 
     public CameraSequenceAsset() {}
 
@@ -87,10 +100,19 @@ public class CameraSequenceAsset implements JsonAssetWithMap<String, DefaultAsse
             CameraKeyframe.KeyframeLookingAt.CODEC);
     }
 
+    /**
+     * Build the camera sequence builder object with all the keyframes.
+     * WARNING: If <code>HideUI</code> is enabled, this will not take effect here.
+     */
     public CameraSequenceBuilder buildSequenceBuilder(@Nullable PlayerRef playerRef, @Nullable Consumer<PlayerRef> onComplete) {
         CameraSequenceBuilder seqBuilder = new CameraSequenceBuilder()
             .baseFov(baseFov)
-            .onComplete(onComplete);
+            .onComplete((playerRef1) -> {
+                if (onComplete != null) onComplete.accept(playerRef1);
+                showUI(playerRef1);
+            });
+
+        // Add keyframes
         for (CameraKeyframe keyframe : cameraKeyframes) {
             Vector3d position = keyframe.isRelativeToPlayer() && playerRef != null
                 ? new Vector3d(playerRef.getTransform().getPosition()).add(keyframe.getPosition())
@@ -132,15 +154,50 @@ public class CameraSequenceAsset implements JsonAssetWithMap<String, DefaultAsse
         return seqBuilder.addFlag((byte)1).addFlag((byte)2).addFlag((byte)4);
     }
 
+    /**
+     * Build the camera sequence builder object with all the keyframes.
+     * WARNING: If <code>HideUI</code> is enabled, this will not take effect here.
+     */
     public CameraSequenceBuilder buildSequenceBuilder(@Nullable PlayerRef playerRef) {
         return buildSequenceBuilder(playerRef, null);
     }
 
     public void play(@Nonnull PlayerRef playerRef, @Nullable Consumer<PlayerRef> onComplete) {
+        if (hideUI) hideUI(playerRef);
         buildSequenceBuilder(playerRef, onComplete).sendTo(playerRef);
     }
 
     public void play(@Nonnull PlayerRef playerRef) {
         play(playerRef, null);
+    }
+
+    private void hideUI(PlayerRef playerRef) {
+        // Hide UI if enabled
+        UUID worldUUID = playerRef.getWorldUuid();
+        if (worldUUID == null) return;
+        World world = Universe.get().getWorld(playerRef.getWorldUuid());
+        if (world == null) return;
+        world.execute(() -> {
+            Ref<EntityStore> ref = playerRef.getReference();
+            if (ref == null) return;
+            Player player = ref.getStore().getComponent(ref, Player.getComponentType());
+            if (player == null) return;
+            player.getHudManager().setVisibleHudComponents(playerRef);
+        });
+    }
+
+    private void showUI(PlayerRef playerRef) {
+        // Hide UI if enabled
+        UUID worldUUID = playerRef.getWorldUuid();
+        if (worldUUID == null) return;
+        World world = Universe.get().getWorld(playerRef.getWorldUuid());
+        if (world == null) return;
+        world.execute(() -> {
+            Ref<EntityStore> ref = playerRef.getReference();
+            if (ref == null) return;
+            Player player = ref.getStore().getComponent(ref, Player.getComponentType());
+            if (player == null) return;
+            player.getHudManager().resetVisibleHudComponents(playerRef);
+        });
     }
 }

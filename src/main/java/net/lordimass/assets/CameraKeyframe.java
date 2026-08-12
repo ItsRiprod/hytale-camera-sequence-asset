@@ -59,7 +59,7 @@ public class CameraKeyframe {
 
     @Getter private Vector3d position;
     @Getter private float durationSeconds;
-    @Getter private EasingType easing;
+    @Getter private EasingType easing = EasingType.Linear;
     @Getter private Float fov;
     @Getter private boolean relativeToPlayer;
 
