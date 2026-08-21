@@ -12,7 +12,8 @@
         "Pitch": -15,
         "Yaw": 180
       },
-      "Duration": 1
+      "Duration": 1,
+      "DepthOfFieldSettings": "TestDepthOfField"
     },
     {
       "Id": "Keyframe",
@@ -27,7 +28,8 @@
         "Pitch": -15,
         "Yaw": 90
       },
-      "Duration": 2
+      "Duration": 2,
+      "DepthOfFieldSettings": "TestDepthOfField"
     },
     {
       "Id": "Keyframe",
@@ -42,7 +44,8 @@
         "Yaw": 0
       },
       "Easing": "BackIn",
-      "Duration": 2
+      "Duration": 2,
+      "DepthOfFieldSettings": "TestDepthOfField"
     },
     {
       "Id": "Keyframe",
@@ -57,7 +60,8 @@
         "Z": -4,
         "Y": 2.3
       },
-      "Duration": 2
+      "Duration": 2,
+      "DepthOfFieldSettings": "TestDepthOfField"
     },
     {
       "Id": "Keyframe",
@@ -71,7 +75,8 @@
         "Pitch": -15,
         "Yaw": 180
       },
-      "Duration": 2
+      "Duration": 2,
+      "DepthOfFieldSettings": "TestDepthOfField"
     },
     {
       "Id": "Keyframe",
@@ -83,7 +88,8 @@
         "Y": 1.7
       },
       "Easing": "QuadIn",
-      "Duration": 1
+      "Duration": 1,
+      "DepthOfFieldSettings": "TestDepthOfField"
     }
   ],
   "BaseFov": 60,

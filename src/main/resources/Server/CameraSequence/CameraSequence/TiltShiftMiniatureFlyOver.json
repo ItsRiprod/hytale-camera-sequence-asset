@@ -1,0 +1,46 @@
+{
+  "Keyframes": [
+    {
+      "Id": "Keyframe",
+      "RelativeToPlayer": true,
+      "Position": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Look": {
+        "Pitch": 0
+      }
+    },
+    {
+      "Id": "Keyframe",
+      "RelativeToPlayer": true,
+      "Duration": 1,
+      "Position": {
+        "Y": 250
+      },
+      "Look": {
+        "Pitch": -30
+      },
+      "DepthOfFieldSettings": "TiltShiftMiniature",
+      "Fov": 20
+    },
+    {
+      "Id": "Keyframe",
+      "RelativeToPlayer": true,
+      "Position": {
+        "Y": 250,
+        "X": 200
+      },
+      "Duration": 20,
+      "DepthOfFieldSettings": "TiltShiftMiniature",
+      "Look": {
+        "Pitch": -30,
+        "Yaw": 30
+      },
+      "Fov": 20,
+      "Easing": "Linear"
+    }
+  ],
+  "HideUi": true
+}

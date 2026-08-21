@@ -8,6 +8,7 @@ import com.hypixel.hytale.codec.lookup.CodecMapCodec;
 import com.hypixel.hytale.codec.validation.Validators;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.math.vector.Vector3dUtil;
+import com.hypixel.hytale.protocol.DepthOfFieldSettings;
 import com.hypixel.hytale.protocol.EasingType;
 import lombok.Getter;
 import org.joml.Vector3d;
@@ -55,15 +56,31 @@ public class CameraKeyframe {
         )
         .documentation("Whether the position and rotation should be relative to the player's current view, or global.")
         .add()
+        .append(new KeyedCodec<>("DepthOfFieldSettings", DepthOfFieldSettingsAsset.CHILD_ASSET_CODEC),
+            (keyframe, depthOfFieldSettingsAsset) -> keyframe.depthOfFieldSettingsAsset = depthOfFieldSettingsAsset,
+            keyframe -> keyframe.depthOfFieldSettingsAsset
+        )
+        .documentation("Settings related to the depth of field effect.")
+        .add()
         .build();
 
     @Getter private Vector3d position;
     @Getter private float durationSeconds;
-    @Getter private EasingType easing = EasingType.Linear;
+    private EasingType easing;
     @Getter private Float fov;
     @Getter private boolean relativeToPlayer;
+    private String depthOfFieldSettingsAsset;
 
     public CameraKeyframe() {}
+
+    public EasingType getEasing() {
+        return easing == null ? EasingType.Linear : easing;
+    }
+
+    public DepthOfFieldSettingsAsset getDepthOfFieldSettingsAsset() {
+        if (this.depthOfFieldSettingsAsset == null) return null;
+        return DepthOfFieldSettingsAsset.getAssetMap().getAsset(this.depthOfFieldSettingsAsset);
+    }
 
     public static class Keyframe extends CameraKeyframe {
         public static final BuilderCodec<Keyframe> CODEC = BuilderCodec

@@ -12,8 +12,10 @@ import com.hypixel.hytale.codec.codecs.array.ArrayCodec;
 import com.hypixel.hytale.codec.validation.Validators;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.math.vector.Rotation3f;
+import com.hypixel.hytale.protocol.DepthOfFieldSettings;
 import com.hypixel.hytale.server.core.asset.HytaleAssetStore;
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.modules.camera.CameraKeyframeBuilder;
 import com.hypixel.hytale.server.core.modules.camera.CameraSequenceBuilder;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
@@ -29,7 +31,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class CameraSequenceAsset implements JsonAssetWithMap<String, DefaultAssetMap<String, CameraSequenceAsset>> {
-    public static final String ASSET_PATH = "CameraSequence";
+    public static final String ASSET_PATH = "CameraSequence/CameraSequence";
 
     private static AssetStore<String, CameraSequenceAsset, DefaultAssetMap<String, CameraSequenceAsset>> assetStore;
 
@@ -117,6 +119,12 @@ public class CameraSequenceAsset implements JsonAssetWithMap<String, DefaultAsse
             Vector3d position = keyframe.isRelativeToPlayer() && playerRef != null
                 ? new Vector3d(playerRef.getTransform().getPosition()).add(keyframe.getPosition())
                 : keyframe.getPosition();
+            CameraKeyframeBuilder keyframeBuilder = new CameraKeyframeBuilder(
+                keyframe.getDurationSeconds(),
+                keyframe.getEasing()
+            );
+            if (keyframe.getFov() != null) keyframeBuilder.fov(keyframe.getFov());
+            if (keyframe.getDepthOfFieldSettingsAsset() != null) keyframeBuilder.depthOfField(keyframe.getDepthOfFieldSettingsAsset().getDepthOfFieldSettings());
             if (keyframe instanceof CameraKeyframe.Keyframe) {
                 Rotation3f look = keyframe.isRelativeToPlayer() && playerRef != null
                     ? new Rotation3f(playerRef.getHeadRotation()).add(((CameraKeyframe.Keyframe) keyframe).getLookRadians())
@@ -130,23 +138,20 @@ public class CameraSequenceAsset implements JsonAssetWithMap<String, DefaultAsse
                     keyframe.getPosition().y,
                     -keyframe.getPosition().x*Math.cos(yaw) - keyframe.getPosition().z*Math.sin(yaw)
                 )) : keyframe.getPosition();
-                seqBuilder = seqBuilder.keyframe(
-                    position,
-                    look,
-                    keyframe.getDurationSeconds(),
-                    keyframe.getEasing(),
-                    keyframe.getFov()
+
+                seqBuilder = seqBuilder.keyframe(keyframeBuilder
+                        .position(position)
+                        .look(look)
                 );
+
             } else if (keyframe instanceof CameraKeyframe.KeyframeLookingAt) {
                 Vector3d lookAtPoint = keyframe.isRelativeToPlayer() && playerRef != null
                     ? playerRef.getTransform().getPosition().add(((CameraKeyframe.KeyframeLookingAt) keyframe).getLookAtPoint())
                     : ((CameraKeyframe.KeyframeLookingAt) keyframe).getLookAtPoint();
-                seqBuilder = seqBuilder.keyframeLookingAt(
-                    position,
-                    lookAtPoint,
-                    keyframe.getDurationSeconds(),
-                    keyframe.getEasing(),
-                    keyframe.getFov()
+
+                seqBuilder = seqBuilder.keyframe(keyframeBuilder
+                    .position(position)
+                    .lookAt(lookAtPoint)
                 );
             }
         }

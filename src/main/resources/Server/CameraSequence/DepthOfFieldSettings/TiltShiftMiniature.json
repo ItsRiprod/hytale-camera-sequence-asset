@@ -1,0 +1,8 @@
+{
+  "NearBlurMax": 1,
+  "FarBlurMax": 1,
+  "FarBlurry": 600,
+  "FarSharp": 500,
+  "NearSharp": 550,
+  "NearBlurry": 450
+}
