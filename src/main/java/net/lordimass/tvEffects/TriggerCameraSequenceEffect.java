@@ -10,18 +10,21 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import lombok.Getter;
 import net.lordimass.assets.CameraSequenceAsset;
+
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
 import javax.annotation.Nonnull;
 
 public class TriggerCameraSequenceEffect extends TriggerEffect {
-    @Nonnull public static final BuilderCodec<TriggerCameraSequenceEffect> CODEC = BuilderCodec
+    @Nonnull public static final BuilderCodec<@NotNull TriggerCameraSequenceEffect> CODEC = BuilderCodec
         .builder(TriggerCameraSequenceEffect.class, TriggerCameraSequenceEffect::new, TriggerEffect.BASE_CODEC)
         .append(new KeyedCodec<>("CameraSequence", Codec.STRING),
             (s, v) -> s.cameraSequenceKey = v,
             TriggerCameraSequenceEffect::getCameraSequenceKey
             )
         .documentation("The ID of a CameraSequence asset to play.")
+        .addValidator(CameraSequenceAsset.VALIDATOR_CACHE.getValidator())
         .add()
         .build();
 
