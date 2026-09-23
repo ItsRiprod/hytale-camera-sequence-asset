@@ -1,1 +1,4 @@
 customUI.triggerVolumeEffectEditor.field.TriggerCameraSequence.CameraSequence = Camera Sequence
+
+command.keyframe.success=Saved keyframe {keyframe} to {assetName}
+command.keyframe.fail=Failed to save {keyframe} to {assetName}. {reason}

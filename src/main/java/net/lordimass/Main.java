@@ -6,7 +6,7 @@ import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import net.lordimass.assets.CameraSequenceAsset;
-import net.lordimass.assets.DepthOfFieldSettingsAsset;
+import net.lordimass.command.CameraKeyframeCommand;
 import net.lordimass.command.CameraSequenceCommand;
 import net.lordimass.tvEffects.TriggerCameraSequenceEffect;
 
@@ -30,12 +30,10 @@ public class Main extends JavaPlugin {
     @Override
     protected void setup() {
         LOGGER.at(Level.INFO).log("Setting up Camera Sequence Assets!");
-
         CameraSequenceAsset.register(this);
-        DepthOfFieldSettingsAsset.register(this);
-
-        getCommandRegistry().registerCommand(new CameraSequenceCommand());
-
+        var commandRegistry = getCommandRegistry();
+        commandRegistry.registerCommand(new CameraSequenceCommand());
+        commandRegistry.registerCommand(new CameraKeyframeCommand());
         TriggerEffect.CODEC.register("TriggerCameraSequence", TriggerCameraSequenceEffect.class, TriggerCameraSequenceEffect.CODEC);
 
         Creditor.setup(this);
