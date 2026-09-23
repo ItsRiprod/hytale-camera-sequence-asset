@@ -1,6 +1,17 @@
 package net.lordimass.assets;
 
+import java.util.Arrays;
+import java.util.UUID;
+import java.util.function.Consumer;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3d;
+
 import com.hypixel.hytale.assetstore.AssetExtraInfo;
+import com.hypixel.hytale.assetstore.AssetKeyValidator;
 import com.hypixel.hytale.assetstore.AssetRegistry;
 import com.hypixel.hytale.assetstore.AssetStore;
 import com.hypixel.hytale.assetstore.codec.AssetBuilderCodec;
@@ -9,31 +20,28 @@ import com.hypixel.hytale.assetstore.map.JsonAssetWithMap;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.codecs.array.ArrayCodec;
+import com.hypixel.hytale.codec.validation.ValidatorCache;
 import com.hypixel.hytale.codec.validation.Validators;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.asset.HytaleAssetStore;
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.modules.camera.CameraKeyframeBuilder;
 import com.hypixel.hytale.server.core.modules.camera.CameraSequenceBuilder;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import lombok.Getter;
-import org.joml.Vector3d;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.UUID;
-import java.util.function.Consumer;
+import lombok.Getter;
 
 public class CameraSequenceAsset implements JsonAssetWithMap<String, DefaultAssetMap<String, CameraSequenceAsset>> {
     public static final String ASSET_PATH = "CameraSequence";
 
     private static AssetStore<String, CameraSequenceAsset, DefaultAssetMap<String, CameraSequenceAsset>> assetStore;
 
-    @Nonnull public static final AssetBuilderCodec<String, CameraSequenceAsset> CODEC =
+    @Nonnull public static final AssetBuilderCodec<String, @NotNull CameraSequenceAsset> CODEC =
         AssetBuilderCodec.builder(
             CameraSequenceAsset.class,
             CameraSequenceAsset::new,
@@ -131,28 +139,35 @@ public class CameraSequenceAsset implements JsonAssetWithMap<String, DefaultAsse
                     -keyframe.getPosition().x*Math.cos(yaw) - keyframe.getPosition().z*Math.sin(yaw)
                 )) : keyframe.getPosition();
                 seqBuilder = seqBuilder.keyframe(
-                    position,
-                    look,
-                    keyframe.getDurationSeconds(),
-                    keyframe.getEasing(),
-                    keyframe.getFov()
+                    new CameraKeyframeBuilder(
+                        keyframe.getDurationSeconds(),
+                        keyframe.getEasing()
+                    )
+                    .position(position)
+                    .look(look)
+                    .fov(keyframe.getFov())
                 );
             } else if (keyframe instanceof CameraKeyframe.KeyframeLookingAt) {
                 Vector3d lookAtPoint = keyframe.isRelativeToPlayer() && playerRef != null
                     ? playerRef.getTransform().getPosition().add(((CameraKeyframe.KeyframeLookingAt) keyframe).getLookAtPoint())
                     : ((CameraKeyframe.KeyframeLookingAt) keyframe).getLookAtPoint();
-                seqBuilder = seqBuilder.keyframeLookingAt(
-                    position,
-                    lookAtPoint,
-                    keyframe.getDurationSeconds(),
-                    keyframe.getEasing(),
-                    keyframe.getFov()
+                seqBuilder = seqBuilder.keyframe(
+                    new CameraKeyframeBuilder(
+                        keyframe.getDurationSeconds(),
+                        keyframe.getEasing()
+                    )
+                    .position(position)
+                    .lookAt(lookAtPoint)
+                    .fov(keyframe.getFov())
                 );
             }
         }
         // Add flags to return camera control to player afterwards.
         return seqBuilder.addFlag((byte)1).addFlag((byte)2).addFlag((byte)4);
     }
+
+    public static final ValidatorCache<String> VALIDATOR_CACHE = new ValidatorCache<>(new AssetKeyValidator<>(CameraSequenceAsset::getAssetStore));
+
 
     /**
      * Build the camera sequence builder object with all the keyframes.
@@ -199,5 +214,11 @@ public class CameraSequenceAsset implements JsonAssetWithMap<String, DefaultAsse
             if (player == null) return;
             player.getHudManager().resetVisibleHudComponents(playerRef);
         });
+    }
+
+    public void addKeyframe(CameraKeyframe keyframe) {
+        CameraKeyframe[] updated = Arrays.copyOf(cameraKeyframes, cameraKeyframes.length + 1);
+        updated[cameraKeyframes.length] = keyframe;
+        cameraKeyframes = updated;
     }
 }

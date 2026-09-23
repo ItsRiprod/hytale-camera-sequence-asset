@@ -7,9 +7,12 @@ import com.hypixel.hytale.codec.codecs.EnumCodec;
 import com.hypixel.hytale.codec.lookup.CodecMapCodec;
 import com.hypixel.hytale.codec.validation.Validators;
 import com.hypixel.hytale.math.vector.Rotation3f;
+import com.hypixel.hytale.math.vector.Transform;
 import com.hypixel.hytale.math.vector.Vector3dUtil;
 import com.hypixel.hytale.protocol.EasingType;
 import lombok.Getter;
+
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3d;
 
 import javax.annotation.Nonnull;
@@ -17,7 +20,7 @@ import javax.annotation.Nonnull;
 public class CameraKeyframe {
     @Nonnull public static CodecMapCodec<CameraKeyframe> CODEC = new CodecMapCodec<>();
 
-    @Nonnull public static final BuilderCodec<CameraKeyframe> ABSTRACT_CODEC = BuilderCodec
+    @Nonnull public static final BuilderCodec<@NotNull CameraKeyframe> ABSTRACT_CODEC = BuilderCodec
         .abstractBuilder(CameraKeyframe.class)
         .appendInherited(new KeyedCodec<>("Position", Vector3dUtil.CODEC),
             (keyframe, position) -> keyframe.position = position,
@@ -65,8 +68,15 @@ public class CameraKeyframe {
 
     public CameraKeyframe() {}
 
+    public CameraKeyframe(Transform transform) {
+            this.position = transform.getPosition();
+            relativeToPlayer = false;
+            fov = 70f;
+            durationSeconds = 3;
+    }
+
     public static class Keyframe extends CameraKeyframe {
-        public static final BuilderCodec<Keyframe> CODEC = BuilderCodec
+        public static final BuilderCodec<@NotNull Keyframe> CODEC = BuilderCodec
             .builder(Keyframe.class, Keyframe::new, CameraKeyframe.ABSTRACT_CODEC)
             .append(new KeyedCodec<>("Look", Rotation3f.CODEC),
                 (keyframe, look) -> keyframe.look = look,
@@ -80,6 +90,11 @@ public class CameraKeyframe {
 
         protected Keyframe() {}
 
+        public Keyframe(Transform transform) {
+            super(transform);
+            this.look = transform.getRotation();
+        }
+
         protected Rotation3f getLookRadians() {
             return new Rotation3f(
                 (float) (Math.toRadians(look.x)),
@@ -90,7 +105,7 @@ public class CameraKeyframe {
     }
 
     public static class KeyframeLookingAt extends CameraKeyframe {
-        public static final BuilderCodec<KeyframeLookingAt> CODEC = BuilderCodec
+        public static final BuilderCodec<@NotNull KeyframeLookingAt> CODEC = BuilderCodec
             .builder(KeyframeLookingAt.class, KeyframeLookingAt::new, CameraKeyframe.ABSTRACT_CODEC)
             .append(new KeyedCodec<>("LookAtPoint", Vector3dUtil.CODEC),
                 (keyframe, lookAtPoint) -> keyframe.lookAtPoint = lookAtPoint,
