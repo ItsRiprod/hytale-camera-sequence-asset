@@ -30,10 +30,10 @@ public class CameraKeyframeCommand extends AbstractPlayerCommand {
     final RequiredArg<CameraSequenceAsset> sequenceArg;
 
     public CameraKeyframeCommand() {
-        super("camerakeyframe", "Play back a camera sequence asset.");
+        super("camerakeyframe", "Append a new frame to a camera sequence at your current position.");
         this.addAliases("keyframe");
 
-        this.sequenceArg = withRequiredArg("sequence", "The ID of the camera sequence asset to play back",
+        this.sequenceArg = withRequiredArg("sequence", "The ID of the camera sequence asset to append the frame to",
                 new AssetArgumentType<>("CameraAsset", CameraSequenceAsset.class,
                         "Camera Asset"));
     }
@@ -57,12 +57,19 @@ public class CameraKeyframeCommand extends AbstractPlayerCommand {
         var seqStore = CameraSequenceAsset.getAssetStore();
         var seqName = seq.getId();
         var existingPackName = seqStore.getAssetMap().getAssetPack(seqName);
+        assert existingPackName != null;
         var pack = AssetModule.get().getAssetPack(existingPackName);
+        if (pack.isImmutable()) {
+            commandContext.sendMessage(Message.raw("Pack " + pack.getName() + " is immutable.").color(Color.RED));
+            return;
+        }
 
         var transformComponent = store.getComponent(ref, TransformComponent.getComponentType());
+        assert transformComponent != null;
         var headTransform = store.getComponent(ref, HeadRotation.getComponentType());
         var eyeHeight = store.getComponent(ref, ModelComponent.getComponentType()).getModel().getEyeHeight(ref, store);
         var transform = transformComponent.getTransform();
+        assert headTransform != null;
         transform.setRotation(toDegrees(headTransform.getRotation()));
         transform.getPosition().add(0, eyeHeight, 0);
         seq.addKeyframe(new Keyframe(transform));
