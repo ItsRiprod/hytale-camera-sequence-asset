@@ -125,6 +125,13 @@ public class CameraSequenceAsset implements JsonAssetWithMap<String, DefaultAsse
             Vector3d position = keyframe.isRelativeToPlayer() && playerRef != null
                 ? new Vector3d(playerRef.getTransform().getPosition()).add(keyframe.getPosition())
                 : keyframe.getPosition();
+            CameraKeyframeBuilder keyframeBuilder = new CameraKeyframeBuilder(
+                keyframe.getDurationSeconds(),
+                keyframe.getEasing()
+            );
+
+            if (keyframe.getFov() != null) keyframeBuilder.fov(keyframe.getFov());
+            if (keyframe.getDepthOfFieldSettingsAsset() != null) keyframeBuilder.depthOfField(keyframe.getDepthOfFieldSettingsAsset().getDepthOfFieldSettings());
             if (keyframe instanceof CameraKeyframe.Keyframe) {
                 Rotation3f look = keyframe.isRelativeToPlayer() && playerRef != null
                     ? new Rotation3f(playerRef.getHeadRotation()).add(((CameraKeyframe.Keyframe) keyframe).getLookRadians())
@@ -138,27 +145,17 @@ public class CameraSequenceAsset implements JsonAssetWithMap<String, DefaultAsse
                     keyframe.getPosition().y,
                     -keyframe.getPosition().x*Math.cos(yaw) - keyframe.getPosition().z*Math.sin(yaw)
                 )) : keyframe.getPosition();
-                seqBuilder = seqBuilder.keyframe(
-                    new CameraKeyframeBuilder(
-                        keyframe.getDurationSeconds(),
-                        keyframe.getEasing()
-                    )
+                seqBuilder = seqBuilder.keyframe(keyframeBuilder
                     .position(position)
                     .look(look)
-                    .fov(keyframe.getFov())
                 );
             } else if (keyframe instanceof CameraKeyframe.KeyframeLookingAt) {
                 Vector3d lookAtPoint = keyframe.isRelativeToPlayer() && playerRef != null
                     ? playerRef.getTransform().getPosition().add(((CameraKeyframe.KeyframeLookingAt) keyframe).getLookAtPoint())
                     : ((CameraKeyframe.KeyframeLookingAt) keyframe).getLookAtPoint();
-                seqBuilder = seqBuilder.keyframe(
-                    new CameraKeyframeBuilder(
-                        keyframe.getDurationSeconds(),
-                        keyframe.getEasing()
-                    )
+                seqBuilder = seqBuilder.keyframe(keyframeBuilder
                     .position(position)
                     .lookAt(lookAtPoint)
-                    .fov(keyframe.getFov())
                 );
             }
         }

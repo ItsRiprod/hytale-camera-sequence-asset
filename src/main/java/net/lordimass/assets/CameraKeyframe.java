@@ -58,6 +58,12 @@ public class CameraKeyframe {
         )
         .documentation("Whether the position and rotation should be relative to the player's current view, or global.")
         .add()
+        .append(new KeyedCodec<>("DepthOfFieldSettings", DepthOfFieldSettingsAsset.CHILD_ASSET_CODEC),
+            (keyframe, depthOfFieldSettingsAsset) -> keyframe.depthOfFieldSettingsAsset = depthOfFieldSettingsAsset,
+            keyframe -> keyframe.depthOfFieldSettingsAsset
+        )
+        .documentation("Settings related to the depth of field effect.")
+        .add()
         .build();
 
     @Getter private Vector3d position;
@@ -65,6 +71,7 @@ public class CameraKeyframe {
     @Getter private EasingType easing = EasingType.Linear;
     @Getter private Float fov = 70f;
     @Getter private boolean relativeToPlayer;
+    private String depthOfFieldSettingsAsset;
 
     public CameraKeyframe() {}
 
@@ -72,6 +79,11 @@ public class CameraKeyframe {
         this.position = transform.getPosition();
         relativeToPlayer = false;
         durationSeconds = 3;
+    }
+
+    public DepthOfFieldSettingsAsset getDepthOfFieldSettingsAsset() {
+        if (this.depthOfFieldSettingsAsset == null) return null;
+        return DepthOfFieldSettingsAsset.getAssetMap().getAsset(this.depthOfFieldSettingsAsset);
     }
 
     public static class Keyframe extends CameraKeyframe {
