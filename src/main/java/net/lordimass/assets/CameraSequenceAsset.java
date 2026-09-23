@@ -37,7 +37,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import lombok.Getter;
 
 public class CameraSequenceAsset implements JsonAssetWithMap<String, DefaultAssetMap<String, CameraSequenceAsset>> {
-    public static final String ASSET_PATH = "CameraSequence";
+    public static final String ASSET_PATH = "CameraSequence/CameraSequence";
 
     private static AssetStore<String, CameraSequenceAsset, DefaultAssetMap<String, CameraSequenceAsset>> assetStore;
 

@@ -63,16 +63,15 @@ public class CameraKeyframe {
     @Getter private Vector3d position;
     @Getter private float durationSeconds;
     @Getter private EasingType easing = EasingType.Linear;
-    @Getter private Float fov;
+    @Getter private Float fov = 70f;
     @Getter private boolean relativeToPlayer;
 
     public CameraKeyframe() {}
 
     public CameraKeyframe(Transform transform) {
-            this.position = transform.getPosition();
-            relativeToPlayer = false;
-            fov = 70f;
-            durationSeconds = 3;
+        this.position = transform.getPosition();
+        relativeToPlayer = false;
+        durationSeconds = 3;
     }
 
     public static class Keyframe extends CameraKeyframe {

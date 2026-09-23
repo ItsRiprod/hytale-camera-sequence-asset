@@ -35,12 +35,12 @@ public class CameraSequenceCommand extends AbstractPlayerCommand {
         var seq = sequenceArg.get(commandContext);
         if (seq == null) {
             commandContext.sendMessage(
-                    Message.raw("Couldn't find camera sequence '" + sequenceArg.get(commandContext) + "'")
+                    Message.raw("Couldn't find camera sequence '" + sequenceArg.get(commandContext).getId() + "'")
                             .color(Color.RED));
             return;
         }
         commandContext.sendMessage(
-                Message.raw("Playing sequence '" + sequenceArg.get(commandContext) + "' to player."));
+                Message.raw("Playing sequence '" + sequenceArg.get(commandContext).getId() + "' to player."));
 
         seq.play(playerRef, _ -> {
             commandContext.sendMessage(Message.raw("Camera sequence completed").color(Color.GREEN));
