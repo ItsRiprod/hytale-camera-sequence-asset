@@ -13,12 +13,16 @@ import com.hypixel.hytale.server.core.command.system.basecommands.AbstractTarget
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+
+import net.lordimass.assets.CameraKeyframe;
 import net.lordimass.assets.CameraSequenceAsset;
 import java.awt.*;
 import javax.annotation.Nonnull;
 
 public class CameraSequenceCommand extends AbstractTargetPlayerCommand {
     final RequiredArg<CameraSequenceAsset> sequenceArg;
+
+    final OptionalArg<Integer> keyFrameArg;
 
     public CameraSequenceCommand() {
         super("camerasequence", "Play back a camera sequence asset.");
@@ -27,6 +31,8 @@ public class CameraSequenceCommand extends AbstractTargetPlayerCommand {
         this.sequenceArg = withRequiredArg("sequence", "The ID of the camera sequence asset to play back",
                 new AssetArgumentType<>("CameraAsset", CameraSequenceAsset.class,
                         "Camera Asset"));
+
+        this.keyFrameArg = withOptionalArg("Keyframe", "Keyframe to jump to", ArgTypes.INTEGER);
     }
 
     @Override
@@ -41,6 +47,32 @@ public class CameraSequenceCommand extends AbstractTargetPlayerCommand {
                             .color(Color.RED));
             return;
         }
+
+        var frame = keyFrameArg.get(commandContext);
+
+        if (frame != null) {
+            // play the single frame instead
+
+            var frames = seq.getCameraKeyframes();
+            if (frame < 0 || frame >= frames.length) {
+                commandContext.sendMessage(
+                        Message.raw("Frame " + frame + " is out of range! Max is " + frames.length));
+                return;
+            }
+            
+            var newSeq = seq.clone();
+            CameraKeyframe[] reorderedFrames = new CameraKeyframe[frames.length - frame];
+            System.arraycopy(frames, frame, reorderedFrames, 0, reorderedFrames.length);
+            newSeq.setCameraKeyframes(reorderedFrames);
+
+            commandContext.sendMessage(
+                    Message.raw("Playing sequence '" + sequenceArg.get(commandContext).getId() + "' from frame " + frame + "."));
+            newSeq.play(playerRef, _ -> {
+                commandContext.sendMessage(Message.raw("Camera sequence completed").color(Color.GREEN));
+            });
+            return;
+        }
+
         commandContext.sendMessage(
                 Message.raw("Playing sequence '" + sequenceArg.get(commandContext).getId() + "' to player."));
 

@@ -22,6 +22,18 @@ public class CameraKeyframe {
 
     @Nonnull public static final BuilderCodec<@NotNull CameraKeyframe> ABSTRACT_CODEC = BuilderCodec
         .abstractBuilder(CameraKeyframe.class)
+        .appendInherited(new KeyedCodec<>("Title", Codec.STRING),
+            (keyframe, title) -> keyframe.title = title,
+            CameraKeyframe::getTitle,
+            (cameraKeyframe, parent) -> cameraKeyframe.title = parent.title
+        )
+        .add()
+        .appendInherited(new KeyedCodec<>("Notes", Codec.STRING),
+            (keyframe, notes) -> keyframe.notes = notes,
+            CameraKeyframe::getNotes,
+            (cameraKeyframe, parent) -> cameraKeyframe.notes = parent.notes
+        )
+        .add()
         .appendInherited(new KeyedCodec<>("Position", Vector3dUtil.CODEC),
             (keyframe, position) -> keyframe.position = position,
             CameraKeyframe::getPosition,
@@ -68,6 +80,8 @@ public class CameraKeyframe {
 
     @Getter private Vector3d position;
     @Getter private float durationSeconds;
+    @Getter private String title;
+    @Getter private String notes;
     @Getter private EasingType easing = EasingType.Linear;
     @Getter private Float fov = 70f;
     @Getter private boolean relativeToPlayer;

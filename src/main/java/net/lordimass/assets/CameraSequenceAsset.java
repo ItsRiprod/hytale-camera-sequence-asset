@@ -77,6 +77,11 @@ public class CameraSequenceAsset implements JsonAssetWithMap<String, DefaultAsse
     @Getter private Float baseFov;
     @Getter private boolean hideUI;
 
+    // Ok technically kinda goes against the whole idea of immutability but then again, the asset was made the only way to play animations T-T
+    public void setCameraKeyframes(CameraKeyframe[] cameraKeyframes) {
+        this.cameraKeyframes = cameraKeyframes == null ? new CameraKeyframe[0] : cameraKeyframes;
+    }
+
     public CameraSequenceAsset() {}
 
     public static AssetStore<String, CameraSequenceAsset, DefaultAssetMap<String, CameraSequenceAsset>> getAssetStore() {
@@ -217,5 +222,15 @@ public class CameraSequenceAsset implements JsonAssetWithMap<String, DefaultAsse
         CameraKeyframe[] updated = Arrays.copyOf(cameraKeyframes, cameraKeyframes.length + 1);
         updated[cameraKeyframes.length] = keyframe;
         cameraKeyframes = updated;
+    }
+
+    public CameraSequenceAsset clone() {
+        var seq = new CameraSequenceAsset();
+        seq.baseFov = baseFov;
+        seq.cameraKeyframes = Arrays.copyOf(cameraKeyframes, cameraKeyframes.length);
+        seq.data = data;
+        seq.hideUI = hideUI;
+        seq.id = id;        
+        return seq;
     }
 }
