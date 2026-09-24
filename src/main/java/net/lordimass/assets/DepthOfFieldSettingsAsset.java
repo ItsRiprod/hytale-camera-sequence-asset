@@ -10,24 +10,23 @@ import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 import com.hypixel.hytale.assetstore.map.JsonAssetWithMap;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
-import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.validation.Validators;
-import com.hypixel.hytale.codec.validation.validator.RangeRefValidator;
 import com.hypixel.hytale.codec.validation.validator.RangeValidator;
 import com.hypixel.hytale.protocol.DepthOfFieldSettings;
 import com.hypixel.hytale.server.core.asset.HytaleAssetStore;
-import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;
+
+import org.jetbrains.annotations.NotNull;
 
 public class DepthOfFieldSettingsAsset implements JsonAssetWithMap<String, DefaultAssetMap<String, DepthOfFieldSettingsAsset>> {
     public static final String ASSET_PATH = "CameraSequence/DepthOfFieldSettings";
 
     private static AssetStore<String, DepthOfFieldSettingsAsset, DefaultAssetMap<String, DepthOfFieldSettingsAsset>> assetStore;
 
-    @Nonnull public static final AssetBuilderCodec<String, DepthOfFieldSettingsAsset> CODEC = AssetBuilderCodec
+    @Nonnull public static final AssetBuilderCodec<String, @NotNull DepthOfFieldSettingsAsset> CODEC = AssetBuilderCodec
         .builder(
             DepthOfFieldSettingsAsset.class,
             DepthOfFieldSettingsAsset::new,
